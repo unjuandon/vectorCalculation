@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "vectorcalculation",
+    "slug": "vectorcalculation",
+    "version": "1.0.0",
+    "sdkVersion": "51.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "android": {
+      "package": "com.unjuandon.vectorcalculation"
+    },
+    "ios": {
+      "bundleIdentifier": "com.unjuandon.vectorcalculation"
+    }
+  }
+}
