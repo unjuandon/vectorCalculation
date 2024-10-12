@@ -144,14 +144,58 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
     </>
   );
 
+  // const renderResultantVector = () => {
+  //   if (!resultantVector) return null;
+  
+  //   const { x, y } = calculateCoordinates(resultantVector); // Calcula las coordenadas del vector resultante
+  
+  //   return (
+  //     <View style={styles.resultContainer}>
+  //       <Text>Resultant Vector</Text>
+  //       <Svg height="300" width="300">
+  //         {renderCartesianPlane()}
+          
+  //         {/* Graficar el vector resultante */}
+  //         <Line x1="150" y1="150" x2={150 + x} y2={150 - y} stroke="blue" strokeWidth="2" />
+          
+  //         {/* Flecha para el vector resultante */}
+  //         <Polygon
+  //           points={`
+  //             ${150 + x},${150 - y}
+  //             ${150 + x - 10 * Math.cos(Math.atan2(y, x) - Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) - Math.PI / 6)}
+  //             ${150 + x - 10 * Math.cos(Math.atan2(y, x) + Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) + Math.PI / 6)}
+  //           `}
+  //           fill="blue"
+  //         />
+  
+  //         {/* Etiquetas de magnitud y dirección */}
+  //         <SvgText x={150 + x / 2} y={150 - y / 2} fontSize="14" fill="blue">
+  //           Magnitude: {resultantVector.magnitude.toFixed(2)}
+  //         </SvgText>
+  //         <SvgText x={150 + x / 2 + 15} y={150 - y / 2 + 20} fontSize="14" fill="blue">
+  //           Direction: {resultantVector.direction.toFixed(2)}°
+  //         </SvgText>
+  //       </Svg>
+  //     </View>
+  //   );
+  // };
+  
   const renderResultantVector = () => {
     if (!resultantVector) return null;
   
     const { x, y } = calculateCoordinates(resultantVector); // Calcula las coordenadas del vector resultante
+    const magnitude = resultantVector.magnitude.toFixed(2);
+    const direction = resultantVector.direction.toFixed(2);
+  
+    // Fórmulas
+    const formulaX = `X = Magnitude * cos(Direction)`;
+    const formulaY = `Y = Magnitude * sin(Direction)`;
+    const formulaMagnitude = `Magnitude = √(X² + Y²)`;
+    const formulaDirection = `Direction = atan2(Y, X) * (180/π)`;
   
     return (
       <View style={styles.resultContainer}>
-        <Text>Resultant Vector</Text>
+        <Text style={styles.resultTitle}>Resultant Vector</Text>
         <Svg height="300" width="300">
           {renderCartesianPlane()}
           
@@ -170,16 +214,73 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
   
           {/* Etiquetas de magnitud y dirección */}
           <SvgText x={150 + x / 2} y={150 - y / 2} fontSize="14" fill="blue">
-            Magnitude: {resultantVector.magnitude.toFixed(2)}
+            Magnitude: {magnitude}
           </SvgText>
           <SvgText x={150 + x / 2 + 15} y={150 - y / 2 + 20} fontSize="14" fill="blue">
-            Direction: {resultantVector.direction.toFixed(2)}°
+            Direction: {direction}°
           </SvgText>
         </Svg>
+  
+        {/* Tabla de cálculos */}
+        <View style={styles.tableContainer}>
+          <Text style={styles.tableTitle}>Calculations</Text>
+          <View style={styles.table}>
+            <Text style={styles.tableHeader}>Component</Text>
+            <Text style={styles.tableHeader}>Value</Text>
+  
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>X Component</Text>
+              <Text style={styles.tableCell}>{x.toFixed(2)}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Y Component</Text>
+              <Text style={styles.tableCell}>{y.toFixed(2)}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Magnitude</Text>
+              <Text style={styles.tableCell}>{magnitude}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Direction</Text>
+              <Text style={styles.tableCell}>{direction}°</Text>
+            </View>
+          </View>
+  
+          {/* Fórmulas de cálculo */}
+          <Text style={styles.formulasTitle}>Formulas</Text>
+          <View style={styles.formulasContainer}>
+            <Text style={styles.formulaText}>{formulaX}</Text>
+            <Text style={styles.formulaText}>{formulaY}</Text>
+            <Text style={styles.formulaText}>{formulaMagnitude}</Text>
+            <Text style={styles.formulaText}>{formulaDirection}</Text>
+          </View>
+  
+          {/* Paso a paso del cálculo */}
+          <Text style={styles.stepsTitle}>Calculation Steps</Text>
+          <View style={styles.stepsContainer}>
+            <Text style={styles.stepText}>
+              1. **Calculate X Component**: 
+              X = Magnitude * cos(Direction) = {magnitude} * cos({direction}°) = {Math.cos(direction * (Math.PI / 180) * magnitude).toFixed(2)}
+            </Text>
+            <Text style={styles.stepText}>
+              2. **Calculate Y Component**: 
+              Y = Magnitude * sin(Direction) = {magnitude} * sin({direction}°) = {Math.sin(direction * (Math.PI / 180) * magnitude).toFixed(2)}
+            </Text>
+            <Text style={styles.stepText}>
+              3. **Calculate Magnitude**: 
+              Magnitude = √(X² + Y²) = √({x.toFixed(2)}² + {y.toFixed(2)}²) = {magnitude}
+            </Text>
+            <Text style={styles.stepText}>
+              4. **Calculate Direction**: 
+              Direction = atan2(Y, X) * (180/π) = atan2({y.toFixed(2)}, {x.toFixed(2)}) * (180/π) = {direction}°
+            </Text>
+          </View>
+        </View>
       </View>
     );
   };
   
+
 
   const renderVectorGraphCosine = (vector, index) => {
     const { x, y, calculations } = calculateCoordinates(vector);
@@ -421,7 +522,7 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
             placeholder="Enter Quadrant (1-4)"
           />
         <Button title="Add Vector" onPress={addVector} />
-           
+        <hr />
         <Button title="Calculate Resultant Vector" onPress={calculateResultant} />
         {renderResultantVector()}
         </View>
@@ -438,6 +539,7 @@ const GraphScreenTraditional = ({ calculateCoordinates }) => {
   const [magnitude, setMagnitude] = useState('');
   const [direction, setDirection] = useState('');
   const [quadrant, setQuadrant] = useState('');
+  const [resultantVector, setResultantVector] = useState(null);
 
   const addVector = () => {
     if (magnitude && direction && quadrant) {
@@ -472,7 +574,119 @@ const GraphScreenTraditional = ({ calculateCoordinates }) => {
     </>
   );
 
+  const calculateResultant = () => {
+    let sumX = 0;
+    let sumY = 0;
 
+    vectors.forEach((vector) => {
+      const { x, y } = calculateCoordinates(vector);
+      sumX += x;
+      sumY += y;
+    });
+    const resultantMagnitude = Math.sqrt(sumX ** 2 + sumY ** 2);
+    const resultantDirection = Math.atan2(sumY, sumX) * (180 / Math.PI); // Convertir a grados
+    setResultantVector({ magnitude: resultantMagnitude, direction: resultantDirection, quadrant: 1 }); // Se asume el primer cuadrante
+  };
+
+  const renderResultantVector = () => {
+    if (!resultantVector) return null;
+  
+    const { x, y } = calculateCoordinates(resultantVector); // Calcula las coordenadas del vector resultante
+    const magnitude = resultantVector.magnitude.toFixed(2);
+    const direction = resultantVector.direction.toFixed(2);
+  
+    // Fórmulas
+    const formulaX = `X = Magnitude * cos(Direction)`;
+    const formulaY = `Y = Magnitude * sin(Direction)`;
+    const formulaMagnitude = `Magnitude = √(X² + Y²)`;
+    const formulaDirection = `Direction = atan2(Y, X) * (180/π)`;
+  
+    return (
+      <View style={styles.resultContainer}>
+        <Text style={styles.resultTitle}>Resultant Vector</Text>
+        <Svg height="300" width="300">
+          {renderCartesianPlane()}
+          
+          {/* Graficar el vector resultante */}
+          <Line x1="150" y1="150" x2={150 + x} y2={150 - y} stroke="blue" strokeWidth="2" />
+          
+          {/* Flecha para el vector resultante */}
+          <Polygon
+            points={`
+              ${150 + x},${150 - y}
+              ${150 + x - 10 * Math.cos(Math.atan2(y, x) - Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) - Math.PI / 6)}
+              ${150 + x - 10 * Math.cos(Math.atan2(y, x) + Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) + Math.PI / 6)}
+            `}
+            fill="blue"
+          />
+  
+          {/* Etiquetas de magnitud y dirección */}
+          <SvgText x={150 + x / 2} y={150 - y / 2} fontSize="14" fill="blue">
+            Magnitude: {magnitude}
+          </SvgText>
+          <SvgText x={150 + x / 2 + 15} y={150 - y / 2 + 20} fontSize="14" fill="blue">
+            Direction: {direction}°
+          </SvgText>
+        </Svg>
+  
+        {/* Tabla de cálculos */}
+        <View style={styles.tableContainer}>
+          <Text style={styles.tableTitle}>Calculations</Text>
+          <View style={styles.table}>
+            <Text style={styles.tableHeader}>Component</Text>
+            <Text style={styles.tableHeader}>Value</Text>
+  
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>X Component</Text>
+              <Text style={styles.tableCell}>{x.toFixed(2)}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Y Component</Text>
+              <Text style={styles.tableCell}>{y.toFixed(2)}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Magnitude</Text>
+              <Text style={styles.tableCell}>{magnitude}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Direction</Text>
+              <Text style={styles.tableCell}>{direction}°</Text>
+            </View>
+          </View>
+  
+          {/* Fórmulas de cálculo */}
+          <Text style={styles.formulasTitle}>Formulas</Text>
+          <View style={styles.formulasContainer}>
+            <Text style={styles.formulaText}>{formulaX}</Text>
+            <Text style={styles.formulaText}>{formulaY}</Text>
+            <Text style={styles.formulaText}>{formulaMagnitude}</Text>
+            <Text style={styles.formulaText}>{formulaDirection}</Text>
+          </View>
+  
+          {/* Paso a paso del cálculo */}
+          <Text style={styles.stepsTitle}>Calculation Steps</Text>
+          <View style={styles.stepsContainer}>
+            <Text style={styles.stepText}>
+              1. **Calculate X Component**: 
+              X = Magnitude * cos(Direction) = {magnitude} * cos({direction}°) = {Math.cos(direction * (Math.PI / 180) * magnitude).toFixed(2)}
+            </Text>
+            <Text style={styles.stepText}>
+              2. **Calculate Y Component**: 
+              Y = Magnitude * sin(Direction) = {magnitude} * sin({direction}°) = {Math.sin(direction * (Math.PI / 180) * magnitude).toFixed(2)}
+            </Text>
+            <Text style={styles.stepText}>
+              3. **Calculate Magnitude**: 
+              Magnitude = √(X² + Y²) = √({x.toFixed(2)}² + {y.toFixed(2)}²) = {magnitude}
+            </Text>
+            <Text style={styles.stepText}>
+              4. **Calculate Direction**: 
+              Direction = atan2(Y, X) * (180/π) = atan2({y.toFixed(2)}, {x.toFixed(2)}) * (180/π) = {direction}°
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
 
 
 const renderVectorGraphTraditional = (vector, index) => {
@@ -683,6 +897,9 @@ const renderVectorGraphTraditional = (vector, index) => {
             placeholder="Enter Quadrant (1-4)"
           />
           <Button title="Add Vector" onPress={addVector} />
+          <hr />
+          <Button title="Calculate Resultant Vector" onPress={calculateResultant} />
+        {renderResultantVector()}
         </View>
 
         {vectors.map((vector, index) => renderVectorGraphTraditional(vector, index))}
@@ -698,6 +915,7 @@ const GraphScreenAlternative = ({ calculateCoordinates }) => {
   const [magnitude, setMagnitude] = useState('');
   const [direction, setDirection] = useState('');
   const [quadrant, setQuadrant] = useState('');
+  const [resultantVector, setResultantVector] = useState(null);
 
   const addVector = () => {
     if (magnitude && direction && quadrant) {
@@ -731,6 +949,124 @@ const GraphScreenAlternative = ({ calculateCoordinates }) => {
       ))}
     </>
   );
+
+
+
+  const calculateResultant = () => {
+    let sumX = 0;
+    let sumY = 0;
+
+    vectors.forEach((vector) => {
+      const { x, y } = calculateCoordinates(vector);
+      sumX += x;
+      sumY += y;
+    });
+    const resultantMagnitude = Math.sqrt(sumX ** 2 + sumY ** 2);
+    const resultantDirection = Math.atan2(sumY, sumX) * (180 / Math.PI); // Convertir a grados
+    setResultantVector({ magnitude: resultantMagnitude, direction: resultantDirection, quadrant: 1 }); // Se asume el primer cuadrante
+  };
+
+  const renderResultantVector = () => {
+    if (!resultantVector) return null;
+  
+    const { x, y } = calculateCoordinates(resultantVector); // Calcula las coordenadas del vector resultante
+    const magnitude = resultantVector.magnitude.toFixed(2);
+    const direction = resultantVector.direction.toFixed(2);
+  
+    // Fórmulas
+    const formulaX = `X = Magnitude * cos(Direction)`;
+    const formulaY = `Y = Magnitude * sin(Direction)`;
+    const formulaMagnitude = `Magnitude = √(X² + Y²)`;
+    const formulaDirection = `Direction = atan2(Y, X) * (180/π)`;
+  
+    return (
+      <View style={styles.resultContainer}>
+        <Text style={styles.resultTitle}>Resultant Vector</Text>
+        <Svg height="300" width="300">
+          {renderCartesianPlane()}
+          
+          {/* Graficar el vector resultante */}
+          <Line x1="150" y1="150" x2={150 + x} y2={150 - y} stroke="blue" strokeWidth="2" />
+          
+          {/* Flecha para el vector resultante */}
+          <Polygon
+            points={`
+              ${150 + x},${150 - y}
+              ${150 + x - 10 * Math.cos(Math.atan2(y, x) - Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) - Math.PI / 6)}
+              ${150 + x - 10 * Math.cos(Math.atan2(y, x) + Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) + Math.PI / 6)}
+            `}
+            fill="blue"
+          />
+  
+          {/* Etiquetas de magnitud y dirección */}
+          <SvgText x={150 + x / 2} y={150 - y / 2} fontSize="14" fill="blue">
+            Magnitude: {magnitude}
+          </SvgText>
+          <SvgText x={150 + x / 2 + 15} y={150 - y / 2 + 20} fontSize="14" fill="blue">
+            Direction: {direction}°
+          </SvgText>
+        </Svg>
+  
+        {/* Tabla de cálculos */}
+        <View style={styles.tableContainer}>
+          <Text style={styles.tableTitle}>Calculations</Text>
+          <View style={styles.table}>
+            <Text style={styles.tableHeader}>Component</Text>
+            <Text style={styles.tableHeader}>Value</Text>
+  
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>X Component</Text>
+              <Text style={styles.tableCell}>{x.toFixed(2)}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Y Component</Text>
+              <Text style={styles.tableCell}>{y.toFixed(2)}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Magnitude</Text>
+              <Text style={styles.tableCell}>{magnitude}</Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableCell}>Direction</Text>
+              <Text style={styles.tableCell}>{direction}°</Text>
+            </View>
+          </View>
+  
+          {/* Fórmulas de cálculo */}
+          <Text style={styles.formulasTitle}>Formulas</Text>
+          <View style={styles.formulasContainer}>
+            <Text style={styles.formulaText}>{formulaX}</Text>
+            <Text style={styles.formulaText}>{formulaY}</Text>
+            <Text style={styles.formulaText}>{formulaMagnitude}</Text>
+            <Text style={styles.formulaText}>{formulaDirection}</Text>
+          </View>
+  
+          {/* Paso a paso del cálculo */}
+          <Text style={styles.stepsTitle}>Calculation Steps</Text>
+          <View style={styles.stepsContainer}>
+            <Text style={styles.stepText}>
+              1. **Calculate X Component**: 
+              X = Magnitude * cos(Direction) = {magnitude} * cos({direction}°) = {Math.cos(direction * (Math.PI / 180) * magnitude).toFixed(2)}
+            </Text>
+            <Text style={styles.stepText}>
+              2. **Calculate Y Component**: 
+              Y = Magnitude * sin(Direction) = {magnitude} * sin({direction}°) = {Math.sin(direction * (Math.PI / 180) * magnitude).toFixed(2)}
+            </Text>
+            <Text style={styles.stepText}>
+              3. **Calculate Magnitude**: 
+              Magnitude = √(X² + Y²) = √({x.toFixed(2)}² + {y.toFixed(2)}²) = {magnitude}
+            </Text>
+            <Text style={styles.stepText}>
+              4. **Calculate Direction**: 
+              Direction = atan2(Y, X) * (180/π) = atan2({y.toFixed(2)}, {x.toFixed(2)}) * (180/π) = {direction}°
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+
   const renderVectorGraphAlternative = (vector, index) => {
     const { x, y, calculations } = calculateCoordinates(vector);
 
@@ -829,6 +1165,20 @@ const GraphScreenAlternative = ({ calculateCoordinates }) => {
     }
 
 
+    const angleAlfa = vector.direction;
+    let angleBeta;  // Convertimos a grados
+    
+    if (cuadrante === 1) {
+      angleAlpha = Math.round(angleAlfa); // Redondeamos al entero más cercano // Redondeamos al entero más cercano
+    } else if (cuadrante === 2) {
+      angleAlpha = Math.round(180 - angleAlfa);  // Redondeamos al entero más cercano
+    } else if (cuadrante === 3) {
+      angleAlpha = Math.round(180 + angleAlfa);  // Redondeamos al entero más cercano
+    } else if (cuadrante === 4) {
+      angleAlpha = Math.round(360 - angleAlfa);  // Redondeamos al entero más cercano
+    }
+    
+
 
   
   
@@ -917,6 +1267,9 @@ const GraphScreenAlternative = ({ calculateCoordinates }) => {
             placeholder="Enter Quadrant (1-4)"
           />
           <Button title="Add Vector" onPress={addVector} />
+          <hr />
+          <Button title="Calculate Resultant Vector"  onPress={calculateResultant} />
+        {renderResultantVector()}
         </View>
 
         {vectors.map((vector, index) => renderVectorGraphAlternative(vector, index))}
@@ -981,6 +1334,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
   },
+  formulasTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  formulasContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+  },
+  formulaText: {
+    marginBottom: 5,
+    fontSize: 14,
+  },
+  stepsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  stepsContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+  },
+  stepText: {
+    marginBottom: 5,
+    fontSize: 14,
+  },
+  setButtons:{
+    margin: 'auto',
+  }
 });
 
 const Tab = createBottomTabNavigator();
