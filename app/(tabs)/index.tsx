@@ -93,6 +93,7 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
   const [magnitude, setMagnitude] = useState('');
   const [direction, setDirection] = useState('');
   const [quadrant, setQuadrant] = useState('');
+  const [resultantVector, setResultantVector] = useState(null);
 
   const addVector = () => {
     if (magnitude && direction && quadrant) {
@@ -112,6 +113,22 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
     setVectors(vectors.filter((_, i) => i !== index));
   };
 
+
+  const calculateResultant = () => {
+    let sumX = 0;
+    let sumY = 0;
+
+    vectors.forEach((vector) => {
+      const { x, y } = calculateCoordinates(vector);
+      sumX += x;
+      sumY += y;
+    });
+    const resultantMagnitude = Math.sqrt(sumX ** 2 + sumY ** 2);
+    const resultantDirection = Math.atan2(sumY, sumX) * (180 / Math.PI); // Convertir a grados
+    setResultantVector({ magnitude: resultantMagnitude, direction: resultantDirection, quadrant: 1 }); // Se asume el primer cuadrante
+  };
+
+
   const renderCartesianPlane = () => (
     <>
       <Line x1="50" y1="150" x2="250" y2="150" stroke="grey" strokeWidth="1" />
@@ -126,6 +143,44 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
       ))}
     </>
   );
+
+  const renderResultantVector = () => {
+    if (!resultantVector) return null;
+  
+    const { x, y } = calculateCoordinates(resultantVector); // Calcula las coordenadas del vector resultante
+  
+    return (
+      <View style={styles.resultContainer}>
+        <Text>Resultant Vector</Text>
+        <Svg height="300" width="300">
+          {renderCartesianPlane()}
+          
+          {/* Graficar el vector resultante */}
+          <Line x1="150" y1="150" x2={150 + x} y2={150 - y} stroke="blue" strokeWidth="2" />
+          
+          {/* Flecha para el vector resultante */}
+          <Polygon
+            points={`
+              ${150 + x},${150 - y}
+              ${150 + x - 10 * Math.cos(Math.atan2(y, x) - Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) - Math.PI / 6)}
+              ${150 + x - 10 * Math.cos(Math.atan2(y, x) + Math.PI / 6)},${150 - y - 10 * Math.sin(Math.atan2(y, x) + Math.PI / 6)}
+            `}
+            fill="blue"
+          />
+  
+          {/* Etiquetas de magnitud y dirección */}
+          <SvgText x={150 + x / 2} y={150 - y / 2} fontSize="14" fill="blue">
+            Magnitude: {resultantVector.magnitude.toFixed(2)}
+          </SvgText>
+          <SvgText x={150 + x / 2 + 15} y={150 - y / 2 + 20} fontSize="14" fill="blue">
+            Direction: {resultantVector.direction.toFixed(2)}°
+          </SvgText>
+        </Svg>
+      </View>
+    );
+  };
+  
+
   const renderVectorGraphCosine = (vector, index) => {
     const { x, y, calculations } = calculateCoordinates(vector);
   
@@ -166,6 +221,9 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
       cuadrante = 4;  // Cuarto cuadrante
     }
 
+
+
+
     const componentX = 10; // Longitud de la flecha en X
     const componentY = 10; // Longitud de la flecha en Y
   
@@ -201,6 +259,26 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
       sweepFlag = 0; // Sentido contrario
     }
 
+    const angleAlfa = vector.direction;
+    let angleAlpha;
+    let angleBeta;
+    const teta = Math.abs(angle * (180 / Math.PI));  // Convertimos a grados
+    
+    if (cuadrante === 1) {
+      angleAlpha = Math.round(angleAlfa); // Redondeamos al entero más cercano
+      angleBeta = Math.round(90 - teta);  // Redondeamos al entero más cercano
+    } else if (cuadrante === 2) {
+      angleAlpha = Math.round(180 - angleAlfa);  // Redondeamos al entero más cercano
+      angleBeta = Math.round(teta - 90);  // Redondeamos al entero más cercano
+    } else if (cuadrante === 3) {
+      angleAlpha = Math.round(180 + angleAlfa);  // Redondeamos al entero más cercano
+      angleBeta = Math.round(teta + 90);  // Redondeamos al entero más cercano
+    } else if (cuadrante === 4) {
+      angleAlpha = Math.round(360 - angleAlfa);  // Redondeamos al entero más cercano
+      angleBeta = Math.round(270 - teta);  // Redondeamos al entero más cercano
+    }
+    
+
     const arrowX1 = 150 + x - arrowLength * Math.cos(angle - Math.PI / 6);
     const arrowY1 = 150 - y - arrowLength * Math.sin(angle - Math.PI / 6);
     const arrowX2 = 150 + x - arrowLength * Math.cos(angle + Math.PI / 6);
@@ -214,8 +292,8 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
     // const arrowY2 = vectorEndY + arrowLength * Math.sin(angle + Math.PI / 6);
   
     // Ángulos en grados
-    const angleAlfa = vector.direction; // Por ejemplo, 30°
-    const angleBeta = 90 - angleAlfa; // Por ejemplo, 60°
+ // Por ejemplo, 30°
+    // const angleBeta = 90 - angleAlfa; // Por ejemplo, 60°
 
 
     let arrow;
@@ -239,7 +317,6 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
     } else {
       arrow = leftArrow;
     }
-  
   
     
     return (
@@ -273,7 +350,7 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
           />
           {/* Mostrar el valor del ángulo alfa con símbolo griego */}
           <SvgText x={arcXAlfaStart + 10} y={arcYAlfaStart - 30} fontSize="14" fill="darkblue">
-            {`α ${angleAlfa}°`}
+            {`α ${angleAlpha}°`}
           </SvgText>
   
           {/* Arco para Beta */}
@@ -303,11 +380,13 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
             </View>
           ))}
         </View>
-        <Button title="Delete Vector" onPress={() => deleteVector(index)} />
+        <Button title="Remove Vector" onPress={() => deleteVector(index)} />
       </View>
     );
+  
   };
   
+
 
 
 
@@ -341,7 +420,10 @@ const GraphScreenCosine = ({ calculateCoordinates }) => {
             keyboardType="numeric"
             placeholder="Enter Quadrant (1-4)"
           />
-          <Button title="Add Vector" onPress={addVector} />
+        <Button title="Add Vector" onPress={addVector} />
+           
+        <Button title="Calculate Resultant Vector" onPress={calculateResultant} />
+        {renderResultantVector()}
         </View>
 
         {vectors.map((vector, index) => renderVectorGraphCosine(vector, index))}
@@ -675,6 +757,27 @@ const GraphScreenAlternative = ({ calculateCoordinates }) => {
       cuadrante = 4;  // Cuarto cuadrante
     }
 
+    let angleAlpha;
+    const teta = Math.abs(angle * (180 / Math.PI));  // Convertimos a grados
+
+    switch (cuadrante) {
+      case 1:
+        angleAlpha = teta;
+        break;
+      case 2:
+        angleAlpha = 180 - teta;
+        break;
+      case 3:
+        angleAlpha = 180 + teta;
+        break;
+      case 4:
+        angleAlpha = 360 - teta;
+        break;
+      default:
+        console.error('Cuadrante no válido');
+    }
+    
+
     let largeArcFlag = angle > Math.PI ? 1 : 1; // Arco mayor de 180 grados
     let sweepFlag;
 
@@ -754,7 +857,7 @@ const GraphScreenAlternative = ({ calculateCoordinates }) => {
             {`Mag: ${vector.magnitude}, Dir: ${vector.direction}°`}
           </SvgText>
           <SvgText x={150 + x + 10} y={150 - y + 15} fontSize="12" fill="black" textAnchor="start">
-            {`Angle: ${vector.direction}°`}
+            {`Angle: ${angleAlpha}°`}
           </SvgText>
 
           {/* Arco del ángulo */}
@@ -871,6 +974,12 @@ const styles = StyleSheet.create({
   tableCell: {
     flex: 1,
     fontSize: 14,
+  },
+  resultContainer: {
+    marginTop: 20,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'black',
   },
 });
 
